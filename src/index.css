@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg:      #fffbf5;
+    --color-dark:    #1B1B28;
+    --color-surface: #ffffff;
+    --color-primary: #ff5a8d;
+    --color-yellow:  #ffe797;
+    --color-coral:   #FA6C78;
+    --color-border:  #f0ebe3;
+    --color-muted:   #9b8f85;
+    --color-ink:     #1B1B28;
+    --font-display:  'Playfair Display', Georgia, serif;
+    --font-body:     'DM Sans', sans-serif;
+  }
+
+  html {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
+
+  em {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--color-primary);
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 font-medium text-white transition-all duration-150 cursor-pointer;
+    background-color: var(--color-primary);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    border: none;
+  }
+  .btn-primary:hover { background-color: #e04477; }
+  .btn-primary:active { background-color: #c73060; }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 font-medium transition-all duration-150 cursor-pointer;
+    background: transparent;
+    border: 1.5px solid var(--color-primary);
+    color: var(--color-primary);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-weight: 500;
+  }
+  .btn-secondary:hover { background-color: rgba(255,90,141,0.06); }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium transition-all duration-150 cursor-pointer;
+    background: transparent;
+    color: var(--color-muted);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    border: none;
+  }
+  .btn-ghost:hover {
+    background-color: var(--color-border);
+    color: var(--color-ink);
+  }
+
+  /* Cards */
+  .card {
+    @apply p-6;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(19,18,18,0.06);
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full px-4 py-3 outline-none transition-all duration-150 text-sm;
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-ink);
+    font-family: var(--font-body);
+  }
+  .input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255,90,141,0.1);
+  }
+  .input::placeholder { color: var(--color-muted); }
+
+  .label {
+    @apply block font-medium mb-1.5 uppercase;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    font-family: var(--font-body);
+  }
+
+  /* Priority badges – samma stil för alla nivåer */
+  .badge-kritisk,
+  .badge-viktig,
+  .badge-bra_att_ha {
+    display: inline-flex; align-items: center;
+    padding: 2px 7px;
+    background: rgba(212, 175, 55, 0.15);
+    color: #8a6c00;
+    border-radius: 4px; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    font-family: var(--font-body);
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  0%   { transform: scale(0.7); opacity: 0; }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-fade-in { animation: fadeIn 0.25s ease both; }
+
+/* Custom checkbox – från skrivbordsversionen */
+.check-wrap input[type="checkbox"] { display: none; }
+
+.check-box {
+  width: 24px; height: 24px;
+  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+.check-box:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(255,90,141,0.1);
+}
+.check-box.checked {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-coral));
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(255,90,141,0.4);
+  animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 6px; border-radius: 99px;
+  background: rgba(255,255,255,0.15);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-coral));
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 2px 8px rgba(255,90,141,0.35);
+}
+
+/* Progress bar ljus (för ljus bakgrund) */
+.progress-bar-light { background: var(--color-border); }
+
+/* Score colors */
+.score-bg-low  { background: rgba(250,108,120,0.12); color: var(--color-coral); }
+.score-bg-mid  { background: var(--color-yellow); color: #6b4f00; }
+.score-bg-high { background: #e8f5e9; color: #2e7d32; }

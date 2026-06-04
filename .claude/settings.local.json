@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(npx create-vite@latest . --template react)",
+      "Bash(npm run *)",
+      "Bash(mkdir -p \"/Users/emma/Library/CloudStorage/OneDrive-SeitonAB/01 HELLO DIGITAL/Launch Confident/Plattform/.claude\")",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
