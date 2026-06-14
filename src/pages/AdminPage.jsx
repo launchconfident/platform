@@ -350,7 +350,7 @@ export default function AdminPage() {
                                               <div className="flex items-center gap-2 flex-1 min-w-0">
                                                 <span className="text-xs cursor-grab flex-shrink-0" style={{ color: 'var(--color-muted)' }}>⠿</span>
                                                 <div className="flex-1 min-w-0">
-                                                  <span className="text-xs" style={{ color: 'var(--color-muted)' }}>○ {item.label}</span>
+                                                  <span className="text-xs" style={{ color: 'var(--color-muted)' }}>{item.label}</span>
                                                   {item.description && (
                                                     <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(155,143,133,0.7)', fontStyle: 'italic' }}>{item.description}</p>
                                                   )}
