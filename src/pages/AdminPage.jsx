@@ -203,6 +203,17 @@ export default function AdminPage() {
     await supabase.from('checklist_items').delete().eq('id', item.id)
     await fetchSections(productId)
   }
+  async function moveItem(items, index, direction, productId) {
+    const targetIndex = index + direction
+    if (targetIndex < 0 || targetIndex >= items.length) return
+    const a = items[index]
+    const b = items[targetIndex]
+    await Promise.all([
+      supabase.from('checklist_items').update({ order: b.order }).eq('id', a.id),
+      supabase.from('checklist_items').update({ order: a.order }).eq('id', b.id),
+    ])
+    await fetchSections(productId)
+  }
 
   // Registration link
   async function generateLink() {
@@ -324,7 +335,7 @@ export default function AdminPage() {
                                       )}
                                       {block.type === 'checklist' && (
                                         <div className="mt-1 flex flex-col gap-0.5">
-                                          {block.checklist_items.map(item => (
+                                          {block.checklist_items.map((item, idx) => (
                                             <div key={item.id} className="flex items-center justify-between gap-2 py-1 px-1 rounded-lg hover:bg-gray-50 group">
                                               <div className="flex-1 min-w-0">
                                                 <span className="text-xs" style={{ color: 'var(--color-muted)' }}>○ {item.label}</span>
@@ -334,6 +345,10 @@ export default function AdminPage() {
                                               </div>
                                               <div className="flex items-center gap-2 flex-shrink-0">
                                                 <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'var(--color-yellow)', color: '#6b4f00' }}>{item.points}p</span>
+                                                <div className="flex flex-col">
+                                                  <button onClick={() => moveItem(block.checklist_items, idx, -1, p.id)} disabled={idx === 0} className="text-xs leading-none disabled:opacity-30" style={{ color: 'var(--color-primary)' }}>▲</button>
+                                                  <button onClick={() => moveItem(block.checklist_items, idx, 1, p.id)} disabled={idx === block.checklist_items.length - 1} className="text-xs leading-none disabled:opacity-30" style={{ color: 'var(--color-primary)' }}>▼</button>
+                                                </div>
                                                 <button onClick={() => openEditItem(item, block.id, s.id)} className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--color-primary)' }}>Redigera</button>
                                                 <button onClick={() => deleteItem(item, p.id)} className="text-xs" style={{ color: 'var(--color-coral)' }}>✕</button>
                                               </div>
