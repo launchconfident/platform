@@ -51,6 +51,7 @@ export default function AdminPage() {
   const [editingItem, setEditingItem] = useState(null)
   const [itemForm, setItemForm] = useState({ label: '', description: '', points: 10, priority: 'viktig', block_id: '', section_id: '' })
   const [savingItem, setSavingItem] = useState(false)
+  const [dragItem, setDragItem] = useState(null)
 
   useEffect(() => { fetchAll() }, [])
 
@@ -203,15 +204,12 @@ export default function AdminPage() {
     await supabase.from('checklist_items').delete().eq('id', item.id)
     await fetchSections(productId)
   }
-  async function moveItem(items, index, direction, productId) {
-    const targetIndex = index + direction
-    if (targetIndex < 0 || targetIndex >= items.length) return
-    const a = items[index]
-    const b = items[targetIndex]
-    await Promise.all([
-      supabase.from('checklist_items').update({ order: b.order }).eq('id', a.id),
-      supabase.from('checklist_items').update({ order: a.order }).eq('id', b.id),
-    ])
+  async function reorderItems(items, fromIndex, toIndex, productId) {
+    if (fromIndex === toIndex) return
+    const reordered = [...items]
+    const [moved] = reordered.splice(fromIndex, 1)
+    reordered.splice(toIndex, 0, moved)
+    await Promise.all(reordered.map((item, idx) => supabase.from('checklist_items').update({ order: idx + 1 }).eq('id', item.id)))
     await fetchSections(productId)
   }
 
@@ -336,19 +334,30 @@ export default function AdminPage() {
                                       {block.type === 'checklist' && (
                                         <div className="mt-1 flex flex-col gap-0.5">
                                           {block.checklist_items.map((item, idx) => (
-                                            <div key={item.id} className="flex items-center justify-between gap-2 py-1 px-1 rounded-lg hover:bg-gray-50 group">
-                                              <div className="flex-1 min-w-0">
-                                                <span className="text-xs" style={{ color: 'var(--color-muted)' }}>○ {item.label}</span>
-                                                {item.description && (
-                                                  <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(155,143,133,0.7)', fontStyle: 'italic' }}>{item.description}</p>
-                                                )}
+                                            <div key={item.id}
+                                              draggable
+                                              onDragStart={() => setDragItem({ blockId: block.id, index: idx })}
+                                              onDragOver={(e) => e.preventDefault()}
+                                              onDrop={(e) => {
+                                                e.preventDefault()
+                                                if (dragItem && dragItem.blockId === block.id && dragItem.index !== idx) {
+                                                  reorderItems(block.checklist_items, dragItem.index, idx, p.id)
+                                                }
+                                                setDragItem(null)
+                                              }}
+                                              onDragEnd={() => setDragItem(null)}
+                                              className="flex items-center justify-between gap-2 py-1 px-1 rounded-lg hover:bg-gray-50 group">
+                                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                <span className="text-xs cursor-grab flex-shrink-0" style={{ color: 'var(--color-muted)' }}>⠿</span>
+                                                <div className="flex-1 min-w-0">
+                                                  <span className="text-xs" style={{ color: 'var(--color-muted)' }}>○ {item.label}</span>
+                                                  {item.description && (
+                                                    <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(155,143,133,0.7)', fontStyle: 'italic' }}>{item.description}</p>
+                                                  )}
+                                                </div>
                                               </div>
                                               <div className="flex items-center gap-2 flex-shrink-0">
                                                 <span className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: 'var(--color-yellow)', color: '#6b4f00' }}>{item.points}p</span>
-                                                <div className="flex flex-col">
-                                                  <button onClick={() => moveItem(block.checklist_items, idx, -1, p.id)} disabled={idx === 0} className="text-xs leading-none disabled:opacity-30" style={{ color: 'var(--color-primary)' }}>▲</button>
-                                                  <button onClick={() => moveItem(block.checklist_items, idx, 1, p.id)} disabled={idx === block.checklist_items.length - 1} className="text-xs leading-none disabled:opacity-30" style={{ color: 'var(--color-primary)' }}>▼</button>
-                                                </div>
                                                 <button onClick={() => openEditItem(item, block.id, s.id)} className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--color-primary)' }}>Redigera</button>
                                                 <button onClick={() => deleteItem(item, p.id)} className="text-xs" style={{ color: 'var(--color-coral)' }}>✕</button>
                                               </div>
