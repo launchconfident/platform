@@ -38,6 +38,7 @@ export default function AdminPage() {
 
   // Section modal
   const [showSectionModal, setShowSectionModal] = useState(false)
+  const [editingSection, setEditingSection] = useState(null)
   const [sectionForm, setSectionForm] = useState({ title: '', product_id: '' })
   const [savingSection, setSavingSection] = useState(false)
 
@@ -130,13 +131,23 @@ export default function AdminPage() {
 
   // Section CRUD
   function openNewSection(productId) {
+    setEditingSection(null)
     setSectionForm({ title: '', product_id: productId })
+    setShowSectionModal(true)
+  }
+  function openEditSection(section) {
+    setEditingSection(section)
+    setSectionForm({ title: section.title, product_id: section.product_id })
     setShowSectionModal(true)
   }
   async function saveSection() {
     setSavingSection(true)
-    const existing = sections[sectionForm.product_id] || []
-    await supabase.from('product_sections').insert({ ...sectionForm, order: existing.length + 1 })
+    if (editingSection) {
+      await supabase.from('product_sections').update({ title: sectionForm.title }).eq('id', editingSection.id)
+    } else {
+      const existing = sections[sectionForm.product_id] || []
+      await supabase.from('product_sections').insert({ ...sectionForm, order: existing.length + 1 })
+    }
     await fetchSections(sectionForm.product_id)
     setSavingSection(false)
     setShowSectionModal(false)
@@ -294,6 +305,7 @@ export default function AdminPage() {
                                 <div className="flex items-center justify-between mb-2">
                                   <p className="text-sm font-semibold" style={{ color: 'var(--color-ink)' }}>{s.title}</p>
                                   <div className="flex gap-2">
+                                    <button onClick={() => openEditSection(s)} className="text-xs font-medium" style={{ color: 'var(--color-primary)' }}>Redigera</button>
                                     <button onClick={() => openNewBlock(s.id)} className="text-xs font-medium" style={{ color: 'var(--color-primary)' }}>+ Block</button>
                                     <button onClick={() => deleteSection(s)} className="text-xs" style={{ color: 'var(--color-coral)' }}>Ta bort sektion</button>
                                   </div>
@@ -464,7 +476,7 @@ export default function AdminPage() {
       </Modal>
 
       {/* Section modal */}
-      <Modal open={showSectionModal} onClose={() => setShowSectionModal(false)} title="Ny sektion">
+      <Modal open={showSectionModal} onClose={() => setShowSectionModal(false)} title={editingSection ? 'Redigera sektion' : 'Ny sektion'}>
         <div className="flex flex-col gap-4">
           <div>
             <label className="label">Namn på sektionen</label>
@@ -473,7 +485,7 @@ export default function AdminPage() {
           <div className="flex gap-3 justify-end">
             <button onClick={() => setShowSectionModal(false)} className="btn-ghost">Avbryt</button>
             <button onClick={saveSection} className="btn-primary" disabled={savingSection || !sectionForm.title}>
-              {savingSection ? '…' : 'Skapa sektion'}
+              {savingSection ? '…' : editingSection ? 'Spara' : 'Skapa sektion'}
             </button>
           </div>
         </div>
